@@ -17,7 +17,7 @@ ModulinoButtons buttons;
 
 int freq_count = 0;  // in hertz, change accordingly
 int freq[8] = {261, 294, 330, 349, 392, 440, 494, 522};
-int pinx[4] = {3,4,5,6};
+int pinx[4] = {3, 4, 5, 6};
 int buttonState[4] = {0,0,0,0}; // initial state 
 
 void setup() {
@@ -63,7 +63,6 @@ void loop() {
     frame[1][i+1] = buttonState[i];
   }
 
-  
   // for(int i=0; i<4; i++){
   //   buttonState[i] = digitalRead(pin[i]);
   //   frame[1][i+1] = buttonState[i];
