@@ -47,6 +47,7 @@ void loop() {
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
   };     // initial matrix
+   
 
   // Reading Button
   for(int i=0; i<4; i++){
