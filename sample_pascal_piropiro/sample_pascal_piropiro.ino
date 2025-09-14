@@ -59,8 +59,8 @@ void loop() {
       wave.freq(freq[iicbuttonState] + pascalState);  // Set the frequency of the waveform generator to the updated value
       Serial.println(String(freq[iicbuttonState] + pascalState));
     }else if (isplusflag==1 && pascalState>300){
-      wave.freq(freq[iicbuttonState] - pascalState);  // Set the frequency of the waveform generator to the updated value
-      Serial.println(String(freq[iicbuttonState] - pascalState));
+      wave.freq(freq[iicbuttonState]);  // Set the frequency of the waveform generator to the updated value
+      Serial.println(String(freq[iicbuttonState]));
     }else{
       wave.freq(freq[iicbuttonState]);
     }
