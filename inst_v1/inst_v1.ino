@@ -164,7 +164,16 @@ void loop() {
       playFreq /= 2;
     }
 
-    tone(speakerPin, playFreq);
+    if (pascalState > 300){
+      if (isplusflag == 1){
+        tone(speakerPin, playFreq + pascalState*2);
+      }else{
+        tone(speakerPin, playFreq);
+      }
+      isplusflag = !isplusflag;
+    }else{
+      tone(speakerPin, playFreq);
+    }
     Serial.print("freq: ");
     Serial.println(playFreq);
 
