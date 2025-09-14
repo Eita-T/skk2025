@@ -63,14 +63,14 @@ const uint32_t off[] = {
     0x00000000,
     0x00000000
 };
-
+volatile unsigned long tickCount = 0; // コールバックで更新するカウンタ
 void callbackfunc(timer_callback_args_t *arg) {
-  isMatrixOn = !isMatrixOn;
+  // isMatrixOn = !isMatrixOn;
   // if(timercount > 10){
   //   matrixMode++;
   //   timercount = 0;
   // }
-  // timercount = timercount+1;
+  tickCount++;
 }
 
 
@@ -89,7 +89,7 @@ void setup() {
   if (ch < 0) {
     return;
   }
-  _timer.begin(TIMER_MODE_PERIODIC, type, ch, 10.0f, 50.0f, callbackfunc, nullptr);
+  _timer.begin(TIMER_MODE_PERIODIC, type, ch, 60.0f, 50.0f, callbackfunc, nullptr);
   _timer.setup_overflow_irq();
   _timer.open();
   _timer.start();
@@ -97,35 +97,24 @@ void setup() {
 
 void loop() {
   static int iicbuttonState = 0, buttonState = 0;
-  static int interval = 120;
-  static int pre_interval = 120;
+  static int interval = 30;
   int joyZState = digitalRead(joyZ);
 
-  pre_interval = interval;
   if (joyZState==1 && buttons.isPressed(0)==1){
-    interval = interval + 60;
-    if (interval > 300){
-      interval =300;
+    interval = interval + 1;
+    if (interval > 60){
+      interval =60;
     }
   }else if (joyZState==1 && buttons.isPressed(2)==1){
-    interval = interval - 60;
+    interval = interval - 1;
     if (interval < 0){
-      interval = 60;
+      interval = 4;
     }
   }
 
-  if (interval!=pre_interval){
-    Serial.println(interval);
-    uint8_t type;
-    int8_t ch = FspTimer::get_available_timer(type);
-    if (ch < 0) {
-      return;
-    }
-    _timer.stop();
-    _timer.begin(TIMER_MODE_PERIODIC, type, ch, interval/60, 50.0f, callbackfunc, nullptr);
-    _timer.setup_overflow_irq();
-    _timer.open();
-    _timer.start();
+  if (tickCount >= interval){
+    isMatrixOn = !isMatrixOn;
+    tickCount = 0;
   }
 
   if(isMatrixOn) {
