@@ -21,6 +21,37 @@ int naturalIndex[9] = {0, 0, 2, 4, 5, 7, 9, 11, 12};
 
 int pascalState = 0;
 bool isplusflag = 0, isMatrixOn = 0, timerFlag = 0;
+int matrixMode = 0;
+
+static int timercount = 0;
+
+const uint32_t p0[] = {
+  0x00000000,
+  0x00000000,
+  0x00000000
+};
+
+const uint32_t p1[] = {
+  0xFFFFFFFF,
+  0xFFFFFFFF,
+  0xFFFFFFFF,
+};
+
+const uint32_t p2[] = {
+  0x000100FF,
+  0x0007FE10,
+  0x0000FFF1
+};
+
+const uint32_t p3[] = {
+  0x0002227E,
+  0x0002227E,
+  0x00007E02
+};
+
+
+
+const uint32_t* frames[] = {p0, p1};  // フレーム配列をまとめる
 
 const uint32_t on[] = {
     0xFFFFFFFF,
@@ -35,6 +66,11 @@ const uint32_t off[] = {
 
 void callbackfunc(timer_callback_args_t *arg) {
   isMatrixOn = !isMatrixOn;
+  // if(timercount > 10){
+  //   matrixMode++;
+  //   timercount = 0;
+  // }
+  // timercount = timercount+1;
 }
 
 
@@ -53,7 +89,7 @@ void setup() {
   if (ch < 0) {
     return;
   }
-  _timer.begin(TIMER_MODE_PERIODIC, type, ch, 1.0f, 50.0f, callbackfunc, nullptr);
+  _timer.begin(TIMER_MODE_PERIODIC, type, ch, 10.0f, 50.0f, callbackfunc, nullptr);
   _timer.setup_overflow_irq();
   _timer.open();
   _timer.start();
@@ -61,8 +97,37 @@ void setup() {
 
 void loop() {
   static int iicbuttonState = 0, buttonState = 0;
+  static int interval = 120;
+  static int pre_interval = 120;
   int joyZState = digitalRead(joyZ);
-  
+
+  pre_interval = interval;
+  if (joyZState==1 && buttons.isPressed(0)==1){
+    interval = interval + 60;
+    if (interval > 300){
+      interval =300;
+    }
+  }else if (joyZState==1 && buttons.isPressed(2)==1){
+    interval = interval - 60;
+    if (interval < 0){
+      interval = 60;
+    }
+  }
+
+  if (interval!=pre_interval){
+    Serial.println(interval);
+    uint8_t type;
+    int8_t ch = FspTimer::get_available_timer(type);
+    if (ch < 0) {
+      return;
+    }
+    _timer.stop();
+    _timer.begin(TIMER_MODE_PERIODIC, type, ch, interval/60, 50.0f, callbackfunc, nullptr);
+    _timer.setup_overflow_irq();
+    _timer.open();
+    _timer.start();
+  }
+
   if(isMatrixOn) {
     Serial.println("on");
     matrix.loadFrame(on);
@@ -117,6 +182,9 @@ void loop() {
   } else {
     noTone(speakerPin);
   }
+
+
+  
 
   delay(100);
 }
